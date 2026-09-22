@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FinanceBro</title>
+  <meta name="description" content="Tus gastos del mes, clasificados solos.">
+  <meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="FinanceBro">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="top-row">
+      <span class="sync-spacer" aria-hidden="true"></span>
+      <button class="icon-btn" id="prevMonth" aria-label="Mes anterior">‹</button>
+      <h1 id="monthTitle">—</h1>
+      <button class="icon-btn" id="nextMonth" aria-label="Mes siguiente">›</button>
+      <button class="sync" id="syncBadge" aria-live="polite" title="Estado de sincronización"></button>
+    </div>
+    <div class="strip" id="shareStrip" role="button" tabindex="0" aria-label="Porcentaje de gasto por categoría"></div>
+  </header>
+
+  <main id="view"></main>
+
+  <form class="quick" id="quickForm" autocomplete="off">
+    <div class="quick-preview" id="quickPreview" hidden></div>
+    <div class="quick-row">
+      <input id="quickInput" type="text" inputmode="text" enterkeyhint="done"
+             placeholder="Ej: café 3500 · uber 8k ayer" aria-label="Nuevo gasto">
+      <button type="submit" class="btn-primary" id="quickBtn" aria-label="Agregar gasto">+</button>
+    </div>
+  </form>
+
+  <nav class="tabs" id="tabs">
+    <button data-tab="inicio" class="active"><span>◔</span>Inicio</button>
+    <button data-tab="movimientos"><span>☰</span>Movimientos</button>
+    <button data-tab="historial"><span>▥</span>Historial</button>
+    <button data-tab="ajustes"><span>⚙</span>Ajustes</button>
+  </nav>
+
+  <div class="sheet-backdrop" id="sheetBackdrop" hidden></div>
+  <section class="sheet" id="sheet" role="dialog" aria-modal="true" hidden></section>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="parser.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
