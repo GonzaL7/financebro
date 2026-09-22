@@ -1,6 +1,6 @@
 // Service worker: guarda la app para que abra al instante y sin conexión.
 // Las llamadas a Google Apps Script no pasan por acá (son de otro origen).
-var CACHE = 'financebro-v1';
+var CACHE = 'financebro-v2';
 var ASSETS = ['./', 'index.html', 'styles.css', 'parser.js', 'app.js', 'manifest.webmanifest',
   'icons/icon.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 

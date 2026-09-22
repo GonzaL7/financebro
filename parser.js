@@ -109,6 +109,51 @@ function daysInMonth(month) { // month = 'YYYY-MM'
   return new Date(Date.UTC(+p[0], +p[1], 0)).getUTCDate();
 }
 
+function diffDays(a, b) {
+  return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+}
+
+function shiftYM(ym, delta) {
+  var p = ym.split('-');
+  var d = new Date(Date.UTC(+p[0], +p[1] - 1 + delta, 1));
+  return d.getUTCFullYear() + '-' + pad2(d.getUTCMonth() + 1);
+}
+
+// 'YYYY-MM' + día → fecha, recortando al último día si el mes es más corto (29 en febrero → 28).
+function clampDay(ym, day) {
+  return ym + '-' + pad2(Math.min(day, daysInMonth(ym)));
+}
+
+/*
+ * Períodos: el "mes" puede empezar el día que cobrás (startDay).
+ * Con startDay > 15 el período lleva el nombre del mes en que termina
+ * (29/09 → 28/10 es "2026-10"); con startDay <= 15, el del mes en que empieza.
+ * Con startDay = 1 es el mes calendario de siempre.
+ */
+function periodOf(date, startDay) {
+  startDay = +startDay || 1;
+  var ym = date.slice(0, 7);
+  var startYM = date >= clampDay(ym, startDay) ? ym : shiftYM(ym, -1);
+  return startDay > 15 ? shiftYM(startYM, 1) : startYM;
+}
+
+function periodRange(period, startDay) {
+  startDay = +startDay || 1;
+  var startYM = startDay > 15 ? shiftYM(period, -1) : period;
+  var start = clampDay(startYM, startDay);
+  var end = addDays(clampDay(shiftYM(startYM, 1), startDay), -1);
+  return { start: start, end: end, days: diffDays(start, end) + 1 };
+}
+
+// Fecha en que cae un gasto fijo del día `day` dentro del período.
+function fixedDate(period, day, startDay) {
+  var r = periodRange(period, startDay);
+  var ym = r.start.slice(0, 7);
+  var d = clampDay(ym, day);
+  if (d < r.start) d = clampDay(shiftYM(ym, 1), day);
+  return d > r.end ? r.end : d;
+}
+
 function isValidDate(y, m, d) {
   if (m < 1 || m > 12 || d < 1) return false;
   return d <= daysInMonth(y + '-' + pad2(m));
@@ -343,6 +388,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     DEFAULT_CATEGORIES: DEFAULT_CATEGORIES, parseExpense: parseExpense, categorize: categorize,
     learnKeyword: learnKeyword, normalizeText: normalizeText, findCategory: findCategory,
-    addDays: addDays, daysInMonth: daysInMonth, formatARS: formatARS
+    addDays: addDays, daysInMonth: daysInMonth, formatARS: formatARS,
+    periodOf: periodOf, periodRange: periodRange, fixedDate: fixedDate
   };
 }

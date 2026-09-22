@@ -22,7 +22,18 @@
     var d = new Date();
     return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
   }
-  function curMonth() { return todayISO().slice(0, 7); }
+  // El "mes" empieza el día de cobro (startDay). Con 1 es el mes calendario.
+  var startDay = LS.get('startDay', 1);
+  function per(date) { return periodOf(date, startDay); }
+  function curMonth() { return per(todayISO()); }
+  function rangeLabel(m) {
+    var r = periodRange(m, startDay);
+    var f = function (d) { return +d.slice(8) + ' ' + MONTHS[+d.slice(5, 7) - 1].slice(0, 3); };
+    return f(r.start) + ' – ' + f(r.end);
+  }
+  function clearCaches() {
+    try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf(P + 'cache:') === 0) localStorage.removeItem(k); }); } catch (e) { /* sin storage */ }
+  }
   function monthLabel(m) { var p = m.split('-'); return MONTHS[+p[1] - 1] + ' ' + p[0]; }
   function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
   function monthShort(m) { var p = m.split('-'); return MONTHS[+p[1] - 1].slice(0, 3) + ' ' + p[0].slice(2); }
@@ -96,15 +107,15 @@
       });
       return best ? { amount: best.a, inherited: best.m !== month } : { amount: 0, inherited: false };
     }
+    function sd(db) { return db.config.dia_inicio || 1; }
     function applyFixed(db, month) {
       var key = 'fijos_aplicados:' + month;
       if (db.config[key]) return;
-      var dim = daysInMonth(month);
       db.fixed.forEach(function (f) {
         if (!f.active || !(f.amount > 0)) return;
         var id = 'fijo-' + f.id + '-' + month;
         if (db.expenses.some(function (e) { return e.id === id; })) return;
-        db.expenses.push({ id: id, date: month + '-' + pad2(Math.min(f.day, dim)), description: f.description,
+        db.expenses.push({ id: id, date: fixedDate(month, f.day, sd(db)), description: f.description,
           category: f.category, amount: f.amount, source: 'fijo', created: new Date().toISOString() });
       });
       db.config[key] = true;
@@ -115,22 +126,24 @@
     }
     var A = {
       state: function (db, b) {
-        var month = b.month || curMonth();
-        if (month === curMonth()) applyFixed(db, month);
+        var cur = periodOf(todayISO(), sd(db));
+        var month = b.month || cur;
+        if (month === cur) applyFixed(db, month);
         var inc = income(db, month);
-        var months = {}; months[curMonth()] = true;
-        db.expenses.forEach(function (e) { months[e.date.slice(0, 7)] = true; });
+        var months = {}; months[cur] = true;
+        db.expenses.forEach(function (e) { months[periodOf(e.date, sd(db))] = true; });
+        var range = periodRange(month, sd(db));
         return {
-          ok: true, today: todayISO(), month: month, income: inc.amount, incomeInherited: inc.inherited,
+          ok: true, today: todayISO(), month: month, income: inc.amount, incomeInherited: inc.inherited, startDay: sd(db),
           categories: cats(db), budgets: db.config.presupuestos || {},
-          expenses: sortExpenses(db.expenses.filter(function (e) { return e.date.slice(0, 7) === month; })),
+          expenses: sortExpenses(db.expenses.filter(function (e) { return e.date >= range.start && e.date <= range.end; })),
           rules: db.rules, fixed: db.fixed, months: Object.keys(months).sort()
         };
       },
       history: function (db) {
         var by = {};
         db.expenses.forEach(function (x) {
-          var m = x.date.slice(0, 7);
+          var m = periodOf(x.date, sd(db));
           if (!by[m]) by[m] = { month: m, total: 0, byCategory: {} };
           by[m].total += x.amount;
           by[m].byCategory[x.category] = (by[m].byCategory[x.category] || 0) + x.amount;
@@ -156,6 +169,7 @@
       },
       delete: function (db, b) { db.expenses = db.expenses.filter(function (x) { return x.id !== b.id; }); return { ok: true }; },
       setIncome: function (db, b) { db.config['ingreso:' + b.month] = b.amount; return { ok: true }; },
+      setStartDay: function (db, b) { db.config.dia_inicio = b.startDay; return { ok: true }; },
       setBudgets: function (db, b) { db.config.presupuestos = b.budgets; return { ok: true }; },
       setCategories: function (db, b) { db.config.categorias = b.categories; return { ok: true }; },
       addRule: function (db, b) { upsertRule(db, normalizeText(b.keyword), b.category); return { ok: true }; },
@@ -236,7 +250,7 @@
   function applyOp(d, op) {
     switch (op.action) {
       case 'add':
-        if (op.expense.date.slice(0, 7) === d.month && !d.expenses.some(function (e) { return e.id === op.expense.id; })) {
+        if (per(op.expense.date) === d.month && !d.expenses.some(function (e) { return e.id === op.expense.id; })) {
           d.expenses.push(Object.assign({}, op.expense, { pending: true }));
         }
         break;
@@ -250,7 +264,7 @@
             if (kw) upsertRuleLocal(d, kw, e.category);
           }
         });
-        d.expenses = d.expenses.filter(function (e) { return e.date.slice(0, 7) === d.month; });
+        d.expenses = d.expenses.filter(function (e) { return per(e.date) === d.month; });
         break;
       case 'delete':
         d.expenses = d.expenses.filter(function (e) { return e.id !== op.id; });
@@ -327,6 +341,11 @@
     return backend.call('state', { month: month }).then(function (r) {
       if (seq !== refreshSeq || month !== S.month) return;
       if (!r.ok) { setSync('error', r.error); return; }
+      if (r.startDay && r.startDay !== startDay) {
+        var wasCurrent = month === curMonth();
+        startDay = r.startDay; LS.set('startDay', startDay); clearCaches(); S.history = null;
+        if (wasCurrent && curMonth() !== month) { goMonth(curMonth()); return; }
+      }
       S.data = normalizeData(r, month);
       S.queue.forEach(function (op) { applyOp(S.data, op); });
       saveCache();
@@ -403,6 +422,8 @@
 
   function renderHeader() {
     $('#monthTitle').textContent = monthLabel(S.month);
+    $('#monthRange').textContent = startDay !== 1 ? rangeLabel(S.month) : '';
+    $('#monthRange').hidden = startDay === 1;
     $('#nextMonth').disabled = S.month >= curMonth();
   }
 
@@ -453,8 +474,9 @@
     // Resumen
     var avail = d.income - s.total;
     var usedPct = d.income ? s.total / d.income * 100 : 0;
-    var dim = daysInMonth(S.month);
-    var dayN = isCur ? +todayISO().slice(8) : dim;
+    var range = periodRange(S.month, startDay);
+    var dim = range.days;
+    var dayN = isCur ? diffDays(range.start, todayISO()) + 1 : dim;
     html += '<div class="card">';
     if (d.income) {
       html += '<div class="hero-label">' + (avail >= 0 ? 'Disponible' : 'Te pasaste') + '</div>' +
@@ -638,6 +660,13 @@
       html += '<div class="card"><h2>Volver a modo local</h2><button class="btn btn-block" data-act="to-local">Usar modo local en este teléfono</button></div>';
     }
 
+    // Día de cobro
+    html += '<div class="card"><h2>Día en que empieza tu mes</h2>' +
+      '<p class="small muted" style="margin-top:0">Poné el día que cobrás. Con 29, el mes va del 29 al 28 y lleva el nombre del mes siguiente (29 sep – 28 oct = octubre).</p>' +
+      '<div class="row"><input class="input" id="startDayIn" type="number" inputmode="numeric" min="1" max="31" value="' + startDay + '">' +
+      '<button class="btn-primary" data-act="set-start-day">Guardar</button></div>' +
+      (startDay !== 1 ? '<p class="small ink2" style="margin-bottom:0">Período actual: ' + esc(rangeLabel(curMonth())) + '</p>' : '') + '</div>';
+
     // Ingreso
     html += '<div class="card"><h2>Ingreso de ' + esc(monthLabel(S.month)) + '</h2><div class="row">' +
       '<input class="input" id="incomeIn" inputmode="decimal" value="' + (d.income || '') + '" placeholder="Ej: 850k">' +
@@ -728,11 +757,11 @@
     if (!r.ok) { toast(r.error); return; }
     var catId = S.override || r.category;
     var x = { id: uid(), date: r.date, description: r.description, category: catId, amount: r.amount, source: 'app', created: new Date().toISOString() };
-    var before = S.data.month === r.date.slice(0, 7) ? (summary(S.data).byCat[catId] || 0) : null;
+    var before = S.data.month === per(r.date) ? (summary(S.data).byCat[catId] || 0) : null;
     mutate({ action: 'add', expense: x });
     var c = catOf(catId);
     var msg = '✓ ' + x.description + ' ' + fmt(x.amount) + ' → ' + c.emoji + ' ' + c.name;
-    if (r.date.slice(0, 7) !== S.month) msg += ' (en ' + monthLabel(r.date.slice(0, 7)) + ')';
+    if (per(r.date) !== S.month) msg += ' (en ' + monthLabel(per(r.date)) + ')';
     var budget = Number(S.data.budgets[catId]) || 0;
     if (before != null && budget) {
       var after = before + x.amount;
@@ -841,6 +870,16 @@
       mutate({ action: 'setIncome', month: S.month, amount: v });
       toast('✓ Ingreso de ' + monthLabel(S.month) + ': ' + fmt(v));
     },
+    'set-start-day': function () {
+      var d = parseInt($('#startDayIn').value, 10);
+      if (!(d >= 1 && d <= 31)) { toast('Elegí un día entre 1 y 31'); return; }
+      document.activeElement && document.activeElement.blur();
+      if (d === startDay) return;
+      mutate({ action: 'setStartDay', startDay: d });
+      startDay = d; LS.set('startDay', d); clearCaches(); S.history = null;
+      goMonth(curMonth());
+      toast('✓ Tu mes ahora empieza el día ' + d + '. Período actual: ' + rangeLabel(curMonth()));
+    },
     'edit-income': function () {
       var v = prompt('Ingreso de ' + monthLabel(S.month), S.data.income || '');
       if (v == null) return;
@@ -876,7 +915,7 @@
       var learn = editing.category !== editing.original && $('#edLearn').checked;
       mutate({ action: 'update', id: editing.id, patch: { description: desc || catOf(editing.category).name, amount: amount, date: date, category: editing.category }, learn: learn });
       closeSheet();
-      toast(date.slice(0, 7) !== S.month ? '✓ Guardado (lo moviste a ' + monthLabel(date.slice(0, 7)) + ')' : '✓ Guardado');
+      toast(per(date) !== S.month ? '✓ Guardado (lo moviste a ' + monthLabel(per(date)) + ')' : '✓ Guardado');
     },
     'ed-delete': function () {
       if (!confirm('¿Eliminar este gasto?')) return;
@@ -903,7 +942,7 @@
       mutate({ action: 'setFixed', fixed: S.data.fixed.concat([f]) });
       var m = curMonth();
       if (confirm('¿Lo cargo también en ' + monthLabel(m) + '?')) {
-        mutate({ action: 'add', expense: { id: 'fijo-' + f.id + '-' + m, date: m + '-' + pad2(Math.min(day, daysInMonth(m))), description: desc,
+        mutate({ action: 'add', expense: { id: 'fijo-' + f.id + '-' + m, date: fixedDate(m, day, startDay), description: desc,
           category: f.category, amount: amount, source: 'fijo', created: new Date().toISOString() } });
       }
       toast('✓ Gasto fijo agregado');
