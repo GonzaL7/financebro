@@ -14,7 +14,8 @@ var DEFAULT_CATEGORIES = [
     'super', 'supermercado', 'coto', 'dia', 'carrefour', 'jumbo', 'disco', 'vea', 'changomas',
     'chango mas', 'walmart', 'la anonima', 'libertad', 'chino', 'almacen', 'verduleria', 'verdura',
     'fruta', 'carniceria', 'carne', 'polleria', 'fiambreria', 'dietetica', 'mayorista', 'makro',
-    'vital', 'diarco', 'maxiconsumo', 'yaguar', 'mercaderia', 'compras super', 'huevos', 'leche'
+    'vital', 'diarco', 'maxiconsumo', 'yaguar', 'mercaderia', 'compras super', 'huevos', 'leche',
+    'grocery', 'groceries', 'supermarket', 'market', 'eggs', 'milk', 'vegetables', 'fruits', 'butcher'
   ] },
   { id: 'comida', name: 'Comida y delivery', emoji: '🍔', keywords: [
     'comida', 'almuerzo', 'cena', 'desayuno', 'merienda', 'cafe', 'cafecito', 'starbucks', 'havanna',
@@ -22,55 +23,70 @@ var DEFAULT_CATEGORIES = [
     'sushi', 'rappi', 'pedidosya', 'pedidos ya', 'delivery', 'resto', 'restaurant', 'restaurante',
     'bodegon', 'parrilla', 'panaderia', 'facturas', 'medialunas', 'helado', 'heladeria', 'kiosco',
     'golosinas', 'alfajor', 'bar', 'birra', 'cerveza', 'vino', 'sandwich', 'milanesa', 'hamburguesa',
-    'lomito', 'choripan', 'vianda', 'tostado', 'mate', 'yerba'
+    'lomito', 'choripan', 'vianda', 'tostado', 'mate', 'yerba',
+    'food', 'lunch', 'dinner', 'breakfast', 'brunch', 'coffee', 'snack', 'beer', 'wine', 'drinks', 'ice cream',
+    'bakery', 'takeout', 'take out', 'restaurant', 'burger', 'pizza'
   ] },
   { id: 'transporte', name: 'Transporte', emoji: '🚗', keywords: [
     'uber', 'cabify', 'didi', 'taxi', 'remis', 'sube', 'colectivo', 'bondi', 'subte', 'tren', 'nafta',
     'combustible', 'ypf', 'shell', 'axion', 'puma', 'gnc', 'estacionamiento', 'cochera', 'peaje',
     'autopista', 'telepeaje', 'patente', 'seguro auto', 'mecanico', 'service auto', 'gomeria',
-    'lavadero', 'vtv', 'micro', 'pasaje', 'bici', 'monopatin'
+    'lavadero', 'vtv', 'micro', 'pasaje', 'bici', 'monopatin',
+    'cab', 'bus', 'subway', 'train', 'gasoline', 'fuel', 'petrol', 'gas station', 'parking', 'toll',
+    'car wash', 'mechanic', 'ride', 'bike'
   ] },
   { id: 'vivienda', name: 'Vivienda y servicios', emoji: '🏠', keywords: [
     'alquiler', 'expensas', 'luz', 'edenor', 'edesur', 'epec', 'gas', 'metrogas', 'naturgy', 'camuzzi',
     'agua', 'aysa', 'internet', 'wifi', 'fibertel', 'personal', 'movistar', 'claro', 'telecentro',
     'telefono', 'celular', 'abl', 'municipal', 'arba', 'impuesto', 'impuestos', 'monotributo',
     'plomero', 'electricista', 'ferreteria', 'pintureria', 'limpieza', 'empleada', 'mantenimiento',
-    'mudanza', 'seguro hogar'
+    'mudanza', 'seguro hogar',
+    'rent', 'electricity', 'electric bill', 'power bill', 'water bill', 'gas bill', 'phone bill', 'bills',
+    'cleaning', 'repairs', 'plumber', 'hardware store', 'taxes', 'tax'
   ] },
   { id: 'salud', name: 'Salud', emoji: '💊', keywords: [
     'farmacia', 'farmacity', 'remedio', 'remedios', 'medicamento', 'ibuprofeno', 'osde', 'swiss medical',
     'galeno', 'medife', 'omint', 'prepaga', 'obra social', 'medico', 'doctor', 'dentista', 'odontologo',
     'psicologo', 'terapia', 'analisis', 'laboratorio', 'kinesiologo', 'oculista', 'anteojos', 'lentes',
-    'consulta', 'guardia', 'vacuna'
+    'consulta', 'guardia', 'vacuna',
+    'pharmacy', 'drugstore', 'medicine', 'meds', 'dentist', 'therapy', 'therapist', 'health insurance',
+    'glasses', 'checkup'
   ] },
   { id: 'ocio', name: 'Ocio y salidas', emoji: '🎉', keywords: [
     'cine', 'teatro', 'recital', 'show', 'entrada', 'entradas', 'boliche', 'fiesta', 'salida', 'juego',
     'juegos', 'steam', 'playstation', 'xbox', 'nintendo', 'museo', 'viaje', 'hotel', 'airbnb', 'vacaciones',
     'escapada', 'regalo', 'regalos', 'cumple', 'cumpleanos', 'libro', 'libros', 'futbol', 'cancha', 'padel',
-    'bowling', 'karaoke', 'turismo', 'excursion'
+    'bowling', 'karaoke', 'turismo', 'excursion',
+    'movie', 'movies', 'cinema', 'theater', 'concert', 'tickets', 'ticket', 'party', 'games', 'game', 'trip',
+    'travel', 'vacation', 'gift', 'gifts', 'birthday', 'books', 'book', 'museum', 'going out'
   ] },
   { id: 'compras', name: 'Compras', emoji: '🛍️', keywords: [
     'ropa', 'zapatillas', 'zapatos', 'remera', 'pantalon', 'campera', 'buzo', 'jean', 'vestido', 'zara',
     'mercadolibre', 'mercado libre', 'meli', 'amazon', 'shein', 'temu', 'aliexpress', 'falabella', 'fravega',
     'garbarino', 'musimundo', 'electro', 'shopping', 'cosmetica', 'maquillaje', 'perfume', 'perfumeria',
     'peluqueria', 'corte de pelo', 'barberia', 'manicura', 'unas', 'depilacion', 'accesorios', 'bazar',
-    'muebles', 'deco', 'easy', 'sodimac'
+    'muebles', 'deco', 'easy', 'sodimac',
+    'clothes', 'shoes', 'sneakers', 'shirt', 'pants', 'jacket', 'dress', 'haircut', 'makeup', 'electronics',
+    'furniture', 'shopping'
   ] },
   { id: 'suscripciones', name: 'Suscripciones', emoji: '📺', keywords: [
     'netflix', 'spotify', 'disney', 'disney+', 'hbo', 'max', 'star+', 'prime', 'prime video', 'youtube',
     'youtube premium', 'apple', 'icloud', 'apple music', 'google one', 'chatgpt', 'claude', 'paramount',
     'crunchyroll', 'flow', 'directv', 'dgo', 'suscripcion', 'membresia', 'gimnasio', 'gym', 'megatlon',
-    'smartfit', 'patreon', 'canva', 'office', 'microsoft 365'
+    'smartfit', 'patreon', 'canva', 'office', 'microsoft 365',
+    'subscription', 'membership'
   ] },
   { id: 'educacion', name: 'Educación', emoji: '📚', keywords: [
     'curso', 'cursos', 'facultad', 'universidad', 'uba', 'colegio', 'escuela', 'cuota colegio', 'jardin',
     'matricula', 'clases', 'clase', 'profesor', 'ingles', 'idioma', 'udemy', 'coursera', 'platzi',
-    'libreria', 'utiles', 'fotocopias', 'apuntes', 'taller', 'seminario'
+    'libreria', 'utiles', 'fotocopias', 'apuntes', 'taller', 'seminario',
+    'course', 'class', 'classes', 'school', 'university', 'college', 'tuition', 'english', 'workshop', 'copies'
   ] },
   { id: 'mascotas', name: 'Mascotas', emoji: '🐾', keywords: [
     'veterinaria', 'veterinario', 'vet', 'alimento perro', 'alimento gato', 'balanceado', 'pipeta',
     'antipulgas', 'peluqueria canina', 'petshop', 'pet shop', 'piedritas', 'arena gato', 'perro', 'gato',
-    'mascota', 'paseador'
+    'mascota', 'paseador',
+    'dog food', 'cat food', 'pet', 'pets', 'dog', 'cat', 'dog walker', 'pet store'
   ] },
   { id: 'otros', name: 'Otros', emoji: '📦', keywords: [] }
 ];
@@ -82,7 +98,9 @@ var FALLBACK_CATEGORY = 'otros';
 var STOPWORDS = [
   'gaste', 'gasto', 'gastos', 'pague', 'pago', 'compre', 'compra', 'en', 'de', 'del', 'la', 'el', 'los',
   'las', 'un', 'una', 'unos', 'unas', 'con', 'para', 'por', 'y', 'a', 'al', 'mi', 'mis', 'hoy', 'ayer',
-  'anteayer', 'antes', 'pesos', 'peso', 'ars', 'que', 'se', 'me', 'le', 'lo', 'es', 'fue', 'son', 'total'
+  'anteayer', 'antes', 'pesos', 'peso', 'ars', 'que', 'se', 'me', 'le', 'lo', 'es', 'fue', 'son', 'total',
+  'spent', 'spend', 'paid', 'pay', 'bought', 'buy', 'on', 'for', 'at', 'the', 'of', 'in', 'my', 'and', 'an',
+  'to', 'with', 'some', 'today', 'yesterday', 'dollars', 'bucks', 'i'
 ];
 
 function normalizeText(s) {
@@ -163,7 +181,8 @@ function isValidDate(y, m, d) {
 
 var MULTIPLIERS = {
   k: 1000, mil: 1000, luca: 1000, lucas: 1000,
-  palo: 1000000, palos: 1000000, millon: 1000000, millones: 1000000, m: 1000000
+  palo: 1000000, palos: 1000000, millon: 1000000, millones: 1000000, m: 1000000,
+  thousand: 1000, thousands: 1000, grand: 1000, million: 1000000, millions: 1000000
 };
 
 // Convierte "3.500", "12.000,50", "1,5", "1.5", "3500" a número.
@@ -189,9 +208,13 @@ var NUM_WORDS = {
   noventa: 90, cien: 100, ciento: 100, doscientos: 200, doscientas: 200, trescientos: 300, trescientas: 300,
   cuatrocientos: 400, cuatrocientas: 400, quinientos: 500, quinientas: 500, seiscientos: 600,
   seiscientas: 600, setecientos: 700, setecientas: 700, ochocientos: 800, ochocientas: 800,
-  novecientos: 900, novecientas: 900
+  novecientos: 900, novecientas: 900,
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+  eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17,
+  eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70,
+  eighty: 80, ninety: 90
 };
-var MULT_WORDS = /^(k|mil|lucas?|palos?|millon(es)?)$/;
+var MULT_WORDS = /^(k|mil|lucas?|palos?|millon(es)?|thousands?|grand|millions?)$/;
 
 // "tres mil quinientos" → "3500", "veinte lucas" → "20 lucas", "un palo" → "1 palo".
 // Deja tranquilo un "un" suelto ("un café 3500") y los decimales con multiplicador ("1,5 mil").
@@ -203,17 +226,21 @@ function wordsToDigits(text) {
     var j = i, total = 0, cur = 0, words = 0, onlyUn = true, big = false;
     while (j < toks.length) {
       var t = toks[j];
-      if (NUM_WORDS.hasOwnProperty(t)) {
+      if ((t === 'a' || t === 'an') && j === i && /^(hundred|thousand|million|grand)$/.test(toks[j + 1] || '')) {
+        cur = 1; words++; // "a thousand"; un "a" suelto (preposición en español) no es un número
+      } else if (NUM_WORDS.hasOwnProperty(t)) {
         cur += NUM_WORDS[t]; words++;
-        if (!/^(un|uno|una)$/.test(t)) onlyUn = false;
+        if (!/^(un|uno|una|a|one)$/.test(t)) onlyUn = false;
       } else if (/^\d+$/.test(t) && cur === 0) {
         cur = +t;
-      } else if (t === 'mil' || t === 'millon' || t === 'millones') {
+      } else if (t === 'hundred' && cur > 0) {
+        cur *= 100;
+      } else if (/^(mil|millon|millones|thousand|million)$/.test(t)) {
         if (j === i && i > 0 && /\d$/.test(toks[i - 1])) break; // "1,5 mil": lo resuelve el multiplicador
-        if (t === 'mil') total += (cur || 1) * 1000;
+        if (t === 'mil' || t === 'thousand') total += (cur || 1) * 1000;
         else total = (total + (cur || 1)) * 1000000;
         cur = 0; big = true;
-      } else if (t === 'y' && j > i && cur > 0 && NUM_WORDS.hasOwnProperty(toks[j + 1] || '')) {
+      } else if ((t === 'y' || t === 'and') && j > i && (cur > 0 || total > 0) && NUM_WORDS.hasOwnProperty(toks[j + 1] || '')) {
         // "treinta y cinco"
       } else break;
       j++;
@@ -227,7 +254,7 @@ function wordsToDigits(text) {
   return out.join(' ');
 }
 
-var AMOUNT_RE = /(\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?)(?:\s*(k|mil|lucas?|palos?|millon(?:es)?|m)(?![a-z]))?/g;
+var AMOUNT_RE = /(\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?)(?:\s*(k|mil|lucas?|palos?|millon(?:es)?|thousands?|grand|millions?|m)(?![a-z]))?/g;
 
 function findAmounts(text) {
   var out = [];
@@ -367,10 +394,12 @@ function parseExpense(input, opts) {
 
   // Fechas relativas
   if (today) {
-    if (/\b(anteayer|antes de ayer|antesdeayer)\b/.test(text)) result.date = addDays(today, -2);
-    else if (/\bayer\b/.test(text)) result.date = addDays(today, -1);
+    if (/\b(anteayer|antes de ayer|antesdeayer|day before yesterday)\b/.test(text)) result.date = addDays(today, -2);
+    else if (/\b(ayer|yesterday)\b/.test(text)) result.date = addDays(today, -1);
   }
-  text = text.replace(/\b(anteayer|antes de ayer|antesdeayer|ayer|hoy)\b/g, ' ');
+  text = text.replace(/\b(anteayer|antes de ayer|antesdeayer|ayer|hoy|the day before yesterday|day before yesterday|yesterday|today)\b/g, ' ');
+  // "twenty-five" → "twenty five"
+  text = text.replace(/\b(twenty|thirty|forty|fifty|sixty|seventy|eighty|ninety)-(one|two|three|four|five|six|seven|eight|nine)\b/g, '$1 $2');
   text = wordsToDigits(text.replace(/\s+/g, ' ').trim());
 
   // Monto: el que tiene $ o multiplicador; si no, el más grande.
