@@ -544,7 +544,8 @@
 
   function txRow(e) {
     var c = catOf(e.category);
-    var src = e.source === 'siri' ? ' · 🎙️ Siri' : e.source === 'fijo' ? ' · 📌 Fijo' : '';
+    var SOURCES = { siri: ' · 🎙️ Siri', wallet: ' · 💳 Wallet', atajo: ' · ⚡ Atajo', fijo: ' · 📌 Fijo' };
+    var src = SOURCES[e.source] || '';
     return '<button class="tx' + (e.pending ? ' pending' : '') + '" data-act="edit-tx" data-id="' + esc(e.id) + '">' +
       '<span class="emo" aria-hidden="true">' + esc(c.emoji) + '</span>' +
       '<span class="main"><div class="d">' + esc(e.description) + '</div><div class="c">' + esc(c.name) + ' · ' + esc(dayLabel(e.date)) + src + '</div></span>' +

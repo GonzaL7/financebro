@@ -172,13 +172,62 @@ function toNumber(raw, hasMultiplier) {
   if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) {           // 12.000 / 12.000,50
     return parseFloat(s.replace(/\./g, '').replace(',', '.'));
   }
-  if (!hasMultiplier && /^\d{1,3}(,\d{3})+$/.test(s)) {  // 12,000 (estilo inglés)
-    return parseFloat(s.replace(/,/g, ''));
+  if (/^\d{1,3}(,\d{3})+\.\d+$/.test(s) || (!hasMultiplier && /^\d{1,3}(,\d{3})+$/.test(s))) {
+    return parseFloat(s.replace(/,/g, ''));               // 12,000 / 3,500.00 (formato inglés, ej. Apple Wallet)
   }
   return parseFloat(s.replace(',', '.'));                 // 1,5 / 1.5 / 3500
 }
 
-var AMOUNT_RE = /(\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d+(?:[.,]\d+)?)(?:\s*(k|mil|lucas?|palos?|millon(?:es)?|m)(?![a-z]))?/g;
+/* ---------- Números en palabras (lo que a veces escribe el dictado) ---------- */
+
+var NUM_WORDS = {
+  cero: 0, un: 1, uno: 1, una: 1, dos: 2, tres: 3, cuatro: 4, cinco: 5, seis: 6, siete: 7, ocho: 8, nueve: 9,
+  diez: 10, once: 11, doce: 12, trece: 13, catorce: 14, quince: 15, dieciseis: 16, diecisiete: 17,
+  dieciocho: 18, diecinueve: 19, veinte: 20, veintiun: 21, veintiuno: 21, veintiuna: 21, veintidos: 22,
+  veintitres: 23, veinticuatro: 24, veinticinco: 25, veintiseis: 26, veintisiete: 27, veintiocho: 28,
+  veintinueve: 29, treinta: 30, cuarenta: 40, cincuenta: 50, sesenta: 60, setenta: 70, ochenta: 80,
+  noventa: 90, cien: 100, ciento: 100, doscientos: 200, doscientas: 200, trescientos: 300, trescientas: 300,
+  cuatrocientos: 400, cuatrocientas: 400, quinientos: 500, quinientas: 500, seiscientos: 600,
+  seiscientas: 600, setecientos: 700, setecientas: 700, ochocientos: 800, ochocientas: 800,
+  novecientos: 900, novecientas: 900
+};
+var MULT_WORDS = /^(k|mil|lucas?|palos?|millon(es)?)$/;
+
+// "tres mil quinientos" → "3500", "veinte lucas" → "20 lucas", "un palo" → "1 palo".
+// Deja tranquilo un "un" suelto ("un café 3500") y los decimales con multiplicador ("1,5 mil").
+function wordsToDigits(text) {
+  var toks = text.split(' ');
+  var out = [];
+  var i = 0;
+  while (i < toks.length) {
+    var j = i, total = 0, cur = 0, words = 0, onlyUn = true, big = false;
+    while (j < toks.length) {
+      var t = toks[j];
+      if (NUM_WORDS.hasOwnProperty(t)) {
+        cur += NUM_WORDS[t]; words++;
+        if (!/^(un|uno|una)$/.test(t)) onlyUn = false;
+      } else if (/^\d+$/.test(t) && cur === 0) {
+        cur = +t;
+      } else if (t === 'mil' || t === 'millon' || t === 'millones') {
+        if (j === i && i > 0 && /\d$/.test(toks[i - 1])) break; // "1,5 mil": lo resuelve el multiplicador
+        if (t === 'mil') total += (cur || 1) * 1000;
+        else total = (total + (cur || 1)) * 1000000;
+        cur = 0; big = true;
+      } else if (t === 'y' && j > i && cur > 0 && NUM_WORDS.hasOwnProperty(toks[j + 1] || '')) {
+        // "treinta y cinco"
+      } else break;
+      j++;
+    }
+    if (j === i) { out.push(toks[i]); i++; continue; }
+    var beforeMult = j < toks.length && MULT_WORDS.test(toks[j]);
+    if (big || (words > 0 && (!onlyUn || beforeMult))) out.push(String(total + cur));
+    else out = out.concat(toks.slice(i, j));
+    i = j;
+  }
+  return out.join(' ');
+}
+
+var AMOUNT_RE = /(\$\s*)?(\d{1,3}(?:\.\d{3})+(?:,\d+)?|\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:[.,]\d+)?)(?:\s*(k|mil|lucas?|palos?|millon(?:es)?|m)(?![a-z]))?/g;
 
 function findAmounts(text) {
   var out = [];
@@ -322,6 +371,7 @@ function parseExpense(input, opts) {
     else if (/\bayer\b/.test(text)) result.date = addDays(today, -1);
   }
   text = text.replace(/\b(anteayer|antes de ayer|antesdeayer|ayer|hoy)\b/g, ' ');
+  text = wordsToDigits(text.replace(/\s+/g, ' ').trim());
 
   // Monto: el que tiene $ o multiplicador; si no, el más grande.
   var amounts = findAmounts(text);
